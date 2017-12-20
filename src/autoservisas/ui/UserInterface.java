@@ -26,7 +26,7 @@ public class UserInterface {
                     case 0: 
                         break;
                     case 1: 
-                        findClientObjects(bufRead, db);
+                        findCustomer(bufRead, db);
                         break;
                     case  2: 
                         addWorkerToTeam(bufRead, db);
@@ -61,10 +61,11 @@ public class UserInterface {
         db.closeConnection();
     }
     
-    private void printChoices() {
-        System.out.println("Meniu:");
-        System.out.println("[0] - baigti darba");
-        System.out.println("[1] - rasti kliento objektus");
+    private void printChoices() 
+    {
+        System.out.println("Menu:");
+        System.out.println("[0] - end session");
+        System.out.println("[1] - find customer by name");
         System.out.println("[2] - priskirti darbuotoja komandai");
         System.out.println("[3] - pasamdyti nauja darbuotoja");
         System.out.println("[4] - pakeisti darbuotojo atlyginima");
@@ -72,38 +73,44 @@ public class UserInterface {
         System.out.println("[6] - sukeisti dvieju darbuotoju komandas");
     }
     
-    private void findClientObjects(BufferedReader bufRead, SQL db) {
+    private void findCustomer(BufferedReader bufRead, SQL db) 
+    {
         List<List> result = new LinkedList<List>();
       
-        try {
-            result = db.queryDb("SELECT * FROM juva9765.Klientas");
+        try 
+        {
+            result = db.queryDb("SELECT * FROM luna3951.Uzsakovas");
             
-            System.out.println("Klientai:");
-            for (int i = 0; i < result.size(); i++) {
+            System.out.println("Customers:");
+
+            for (int i = 0; i < result.size(); i++) 
+            {
                 System.out.println((String) result.get(i).get(0) + " " + 
-                        result.get(i).get(1) + " " + result.get(i).get(2));
+                    result.get(i).get(1) + " " + result.get(i).get(2));
             }
             
-            System.out.println("Iveskite kliento asmens koda");
+            System.out.println("Please input customer name");
             
-            result = db.queryDb("SELECT Pavadinimas FROM juva9765.Klientas, "
-                    + "juva9765.Objektas WHERE AK = Savininko_AK AND AK = '" + 
-                    bufRead.readLine() + "'");
+            result = db.queryDb("SELECT Pavadinimas FROM luna3951.Uzsakovas WHERE Vardas = '" + bufRead.readLine() + "'");
             
-            if (result.isEmpty()) {
-                System.out.println("Tokio kliento nera arba jis neturi objektu");
-            } else {
-                System.out.println("Kliento objektai:");
-                for (int i = 0; i < result.size(); i++) {
-                    System.out.println(result.get(i).get(0));
-                }
+            if (result.isEmpty()) 
+            {
+                System.out.println("This customer does not exist");
+            } 
+            else 
+            {
+                System.out.println("Customer:");
+                System.out.println(result.get(0).get(0));
             }
-        } catch (Exception e) {
+        } 
+        catch (Exception e) 
+        {
             System.out.println("Error: " + e.getMessage());
         }
     }
     
-    private void addWorkerToTeam(BufferedReader bufRead, SQL db) {
+    private void addWorkerToTeam(BufferedReader bufRead, SQL db) 
+    {
         List<List> result = new LinkedList<List>();
         
         try {

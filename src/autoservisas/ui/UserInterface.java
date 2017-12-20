@@ -26,22 +26,19 @@ public class UserInterface {
                     case 0: 
                         break;
                     case 1: 
-                        findCustomer(bufRead, db);
+                        getCustomer(bufRead, db);
                         break;
                     case  2: 
-                        addWorkerToTeam(bufRead, db);
+                        assignMechanicVechicle(bufRead, db);
                         break;
                     case  3:    
-                        addWorker(bufRead, db);
+                        addMechanic(bufRead, db);
                         break;
                     case 4: 
-                        updateWorkerSalary(bufRead, db);
+                        updateCustomerTelephone(bufRead, db);
                         break;
                     case 5: 
-                        dismissWorker(bufRead, db);
-                        break;
-                    case 6: 
-                        switchWorkerTeams(bufRead, db);
+                        unassignMechanic(bufRead, db);
                         break;
                     default: 
                         System.out.println("Wrong choice");
@@ -65,15 +62,14 @@ public class UserInterface {
     {
         System.out.println("Menu:");
         System.out.println("[0] - end session");
-        System.out.println("[1] - find customer by name");
-        System.out.println("[2] - priskirti darbuotoja komandai");
-        System.out.println("[3] - pasamdyti nauja darbuotoja");
-        System.out.println("[4] - pakeisti darbuotojo atlyginima");
-        System.out.println("[5] - atleisti darbuotoja");
-        System.out.println("[6] - sukeisti dvieju darbuotoju komandas");
+        System.out.println("[1] - find customer");
+        System.out.println("[2] - assign mechanic to vechicle");
+        System.out.println("[3] - hire new mechanic");
+        System.out.println("[4] - update customer telephone number");
+        System.out.println("[5] - unassign mechanic from vechile");
     }
     
-    private void findCustomer(BufferedReader bufRead, SQL db) 
+    private void getCustomer(BufferedReader bufRead, SQL db) 
     {
         List<List> result = new LinkedList<List>();
       
@@ -86,12 +82,12 @@ public class UserInterface {
             for (int i = 0; i < result.size(); i++) 
             {
                 System.out.println((String) result.get(i).get(0) + " " + 
-                    result.get(i).get(1) + " " + result.get(i).get(2));
+                    result.get(i).get(1) + " " + result.get(i).get(2) + " " + result.get(i).get(3));
             }
             
             System.out.println("Please input customer name");
             
-            result = db.queryDb("SELECT Pavadinimas FROM Uzsakovas WHERE Vardas = '" + bufRead.readLine() + "'");
+            result = db.queryDb("SELECT * FROM Uzsakovas WHERE Vardas = '" + bufRead.readLine() + "'");
             
             if (result.isEmpty()) 
             {
@@ -100,7 +96,10 @@ public class UserInterface {
             else 
             {
                 System.out.println("Customer:");
-                System.out.println(result.get(0).get(0));
+		for (int i = 0; i < result.get(0).size(); i++)
+		{
+                	System.out.println(result.get(0).get(i));
+		}
             }
         } 
         catch (Exception e) 
@@ -109,148 +108,120 @@ public class UserInterface {
         }
     }
     
-    private void addWorkerToTeam(BufferedReader bufRead, SQL db) 
+    private void assignMechanicVechicle(BufferedReader bufRead, SQL db) 
     {
         List<List> result = new LinkedList<List>();
         
-        try {
-            result = db.queryDb("SELECT * FROM juva9765.Komanda ORDER BY Komandos_Nr");
+        try 
+        {
+            result = db.queryDb("SELECT * FROM Mechanikas");
             
-            System.out.println("Komandos:");
-            for (int i = 0; i < result.size(); i++) {
-                System.out.println((String) result.get(i).get(0) + " " + result.get(i).get(1));
-            }
-            
-            result = db.queryDb("SELECT AK, Vardas, Pavarde FROM "
-                    + "juva9765.Darbuotojas EXCEPT SELECT AK, Vardas, Pavarde FROM "
-                    + "juva9765.Komandu_sudetys, juva9765.Darbuotojas "
-                    + "WHERE AK = Darbuotojo_AK");
-            
-            System.out.println("Laisvi Darbuotojai:");
-            for (int i = 0; i < result.size(); i++) {
-                System.out.println((String) result.get(i).get(0) + " " + 
-                        result.get(i).get(1) + " " + result.get(i).get(2));
-            }
-            
-            result = db.queryDb("SELECT * FROM juva9765.Komandu_sudetys");
-            
-            System.out.println("Komandu sudetys (Komandos_Nr Darbuotojo_AK):");
-            for (int i = 0; i < result.size(); i++) {
-                System.out.println((String) result.get(i).get(0) + " " + result.get(i).get(1));
-            }
-            
-            System.out.println("Atitinkamai iveskite komandos numeri ir darbuotojo AK:");
-            
-            result = db.queryDb("INSERT INTO juva9765.Komandu_sudetys VALUES "
-                    + "(" + bufRead.readLine() + ",'" + bufRead.readLine() + "')");
+            System.out.println("Mechanics:");
 
-        } catch (Exception e) {
+            for (int i = 0; i < result.size(); i++) 
+            {
+                System.out.println((String) result.get(i).get(0) + " " + result.get(i).get(1)
+                    + " " + result.get(i).get(2));
+            }
+            
+            result = db.queryDb("SELECT * FROM Masina");
+            
+            System.out.println("Vechicles:");
+
+            for (int i = 0; i < result.size(); i++) 
+            {
+                System.out.println((String) result.get(i).get(0) + " " + 
+                        result.get(i).get(1) + " " + result.get(i).get(2)
+                        + " " + result.get(i).get(3) + " " + result.get(i).get(4));
+            }
+                        
+            System.out.println("Input mechanic's name, surname and vechicle license number");
+            
+            String name = bufRead.readLine();
+            String surname = bufRead.readLine();
+            String valstNr = bufRead.readLine();
+
+            result = db.queryDb("INSERT INTO Taisymas VALUES ('" + valstNr + "', Asmens_kodas)"
+                    + "SELECT Asmens_kodas "
+                    + "FROM Mechanikas "
+                    + "WHERE Vardas = '" + name + "' AND pavarde = '" + surname + "'");
+
+        } 
+        catch (Exception e) 
+        {
             System.out.println("Error: " + e.getMessage());
         }
     }
     
-    private void addWorker(BufferedReader bufRead, SQL db) {
-        System.out.println("Iveskite naujo darbuotojo asmens koda, varda,"
-                + " pavarde ir atlyginima");
+    private void addMechanic(BufferedReader bufRead, SQL db) {
+        System.out.println("Input data of new mechanic: Name, Surname, and " + 
+		    "Personal identification number");
         
-        try {
-            db.queryDb("INSERT INTO juva9765.Darbuotojas VALUES "
-                    + "(" + bufRead.readLine() + ",'" + bufRead.readLine() 
-                    + "','" + bufRead.readLine() + "'," + bufRead.readLine() + ")");
-        } catch (Exception e) {
+        try 
+        {
+            db.queryDb("INSERT INTO Mechanikas VALUES "
+                    + "('" + bufRead.readLine() + "', '" + bufRead.readLine() 
+                    + "'," + bufRead.readLine() + ")");
+        } 
+        catch (Exception e) 
+        {
             System.out.println("Error: " + e.getMessage());
         }        
     }
     
-    private void updateWorkerSalary(BufferedReader bufRead, SQL db) {
+    private void updateCustomerTelephone(BufferedReader bufRead, SQL db) 
+    {
         List<List> result = new LinkedList<List>();
         
-        try {
-            result = db.queryDb("SELECT * FROM juva9765.Darbuotojas");
+        try 
+        {
+            result = db.queryDb("SELECT * FROM Uzsakovas");
             
-            System.out.println("Darbuotojai:");
-            for (int i = 0; i < result.size(); i++) {
+            System.out.println("Customers:");
+            for (int i = 0; i < result.size(); i++) 
+            {
                 System.out.println((String) result.get(i).get(0) + " " + 
                         result.get(i).get(1) + " " + result.get(i).get(2) + 
                         " " + result.get(i).get(3));
             }
             
-            System.out.println("Iveskite darbuotojo nauja atlyginima ir asmens koda:");
+            System.out.println("Input new telephone number and customer's id:");
             
-            result = db.queryDb("UPDATE juva9765.Darbuotojas SET atlyginimas = " + 
-                    bufRead.readLine() + " WHERE ak = '" + bufRead.readLine() + "'");
+            result = db.queryDb("UPDATE Uzsakovas SET telefono_numeris = " + 
+                    bufRead.readLine() + " WHERE ID = " + bufRead.readLine());
             
-        } catch (Exception e) {
+        }  
+        catch (Exception e) 
+        {
             System.out.println("Error: " + e.getMessage());
         }
     }
     
-    private void dismissWorker(BufferedReader bufRead, SQL db) {
+    private void unassignMechanic(BufferedReader bufRead, SQL db) 
+    {
         List<List> result = new LinkedList<List>();
         
-        try {
-            result = db.queryDb("SELECT * FROM juva9765.Darbuotojas");
+        try 
+        {
+            result = db.queryDb("SELECT * FROM Taisymas");
             
-            System.out.println("Darbuotojai:");
-            for (int i = 0; i < result.size(); i++) {
+            System.out.println("Mechanics assigned to vechiles:");
+
+            for (int i = 0; i < result.size(); i++) 
+            {
                 System.out.println((String) result.get(i).get(0) + " " + 
-                        result.get(i).get(1) + " " + result.get(i).get(2) + 
-                        " " + result.get(i).get(3));
+                        result.get(i).get(1));
             }
             
-            System.out.println("Iveskite darbuotojo asmens koda:");
+            System.out.println("Input vechile license number and mechanic personal identification number:");
             
-            result = db.queryDb("DELETE FROM juva9765.Darbuotojas WHERE ak = '" + 
-                    bufRead.readLine() +  "'");
+            result = db.queryDb("DELETE FROM Taisymas WHERE Automobilio_Valst_NR = '" + 
+                    bufRead.readLine() +  "' AND Mechaniko_AK = " + bufRead.readLine());
             
-        } catch (Exception e) {
+        } 
+        catch (Exception e) 
+        {
             System.out.println("Error: " + e.getMessage());
         }
-    }
-    
-    private void switchWorkerTeams(BufferedReader bufRead, SQL db) {
-            List<List> result = new LinkedList<List>();
-        
-        try {
-            db.queryDb("BEGIN");
-            
-            db.queryDb("ALTER TABLE " + db.getDbUsername() + 
-                    ".Komandu_sudetys DISABLE TRIGGER darbuotojuSkMax");
-            
-            result = db.queryDb("SELECT * FROM juva9765.Komandu_sudetys");
-            
-            System.out.println("Komandu sudetys (Komandos_Nr Darbuotojo_AK):");
-            for (int i = 0; i < result.size(); i++) {
-                System.out.println((String) result.get(i).get(0) + " " + result.get(i).get(1));
-            }
-            
-            System.out.println("Atitinkamai iveskite dvieju darbuotoju asmens kodus"
-                    + " ir komandos numerius (AK, Nr, AK, Nr):");
-            
-            String pirmas = bufRead.readLine();
-            int pirmoKomNr = Integer.parseInt(bufRead.readLine());
-            String antras = bufRead.readLine();
-            int antroKomNr = Integer.parseInt(bufRead.readLine());
-            
-            db.queryDb("UPDATE juva9765.Komandu_sudetys SET Komandos_Nr = " + 
-                    antroKomNr + " WHERE Darbuotojo_AK = '" + pirmas + 
-                    "' AND Komandos_Nr = " + pirmoKomNr);
-            
-            db.queryDb("UPDATE juva9765.Komandu_sudetys SET Komandos_Nr = " + 
-                    pirmoKomNr + " WHERE Darbuotojo_AK = '" + antras + 
-                    "' AND Komandos_Nr = " + antroKomNr);
-            
-            db.queryDb("ALTER TABLE " + db.getDbUsername() + 
-                    ".Komandu_sudetys ENABLE TRIGGER darbuotojuSkMax");
-            
-            db.queryDb("COMMIT");
-        } catch (Exception e) {
-            System.out.println("Error:" + e.getMessage());
-            try {
-                db.queryDb("ROLLBACK");
-            } catch (Exception ex) {
-                System.out.println("Error:" + ex.getMessage());
-            }
-        }
-    }
+    }    
 }

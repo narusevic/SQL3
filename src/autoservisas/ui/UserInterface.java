@@ -79,7 +79,7 @@ public class UserInterface {
       
         try 
         {
-            result = db.queryDb("SELECT * FROM luna3951.Uzsakovas");
+            result = db.queryDb("SELECT * FROM Uzsakovas");
             
             System.out.println("Customers:");
 
@@ -91,7 +91,7 @@ public class UserInterface {
             
             System.out.println("Please input customer name");
             
-            result = db.queryDb("SELECT Pavadinimas FROM luna3951.Uzsakovas WHERE Vardas = '" + bufRead.readLine() + "'");
+            result = db.queryDb("SELECT Pavadinimas FROM Uzsakovas WHERE Vardas = '" + bufRead.readLine() + "'");
             
             if (result.isEmpty()) 
             {
